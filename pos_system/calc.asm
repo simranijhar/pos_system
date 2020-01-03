@@ -7,20 +7,19 @@ grandTotal PROTO C, value:SDWORD
 
 .data
 	;define variables here
-	price DWORD ?
+	;price DWORD ?
 	quantity DWORD ?
 	subTotal DWORD ?
 	total DWORD ?
+	divisionTotal DWORD ?
+	numOfPerson DWORD ?
 .code
 
-calcSubTotal PROC C
+calcSubTotal PROC C, price:real8
 
-	;write assembly code here
-
-	INVOKE retrievePrice
-	mov price, eax
+	mov ebx, price
 	INVOKE getQuantity
-	mul price
+	mul ebx
 	mov subTotal, eax
 	INVOKE addToTotal, subTotal
 	ret
@@ -29,8 +28,6 @@ calcSubTotal PROC C
 calcSubTotal ENDP
 
 calcTotal PROC C
-
-	;write assembly code here
 
 	INVOKE calcSubTotal
 	mov ebx, total
@@ -42,5 +39,13 @@ calcTotal PROC C
 	Exit
 calcTotal ENDP
 
+calcDivision PROC C, value1:SDWORD, value2:SDWORD
+	mov eax, value1
+	mov ebx, value2
+    xor edx, edx
+	div ebx
+	ret
+	Exit
+calcDivision ENDP
 
 END

@@ -8,88 +8,119 @@
 
 using namespace std;
 
-void login();
+//TODO retrieve price and ask user for quantity, pass these two parameters to asm to calculate sub total of one item
+//TODO make asm to return these values and temporarily store in variables in c++ to pass them into another asm function to calculate sub total
+
 bool validateLogin(string username, string password);
-int total = 0;
-int subTotal = 0;
+double total = 0;
+double subTotal = 0;
+void calcSplitBill();
+void login();
 
 extern "C" {
 	//EXTERNAL ASM PROCEDURES
-	void calcSubTotal();
+	void calcSubTotal(double price);
 	void calcTotal();
+	int calcDivision(double total, int numOfPerson);
 	//LOCAL C++ FNS
-	int retrievePrice();
+	void displayMenu();
 	int getQuantity();
-	int addToTotal(int sub);
+	double addToTotal(double sub);
 	void grandTotal(int total);
 };
 
 int main() {
-	char c;
+	//char c;
+	//do {
+	//	calcTotal(); //asm procedure
 
-	do {
-		calcTotal(); //asm procedure
+	//	cout << "Do you want to add more items? (Y/N): ";
+	//	cin >> c;
+	//	c = toupper(c);
+	//	//system("CLS");
+	//} while (c != 'N');
 
-		cout << "Do you want to add more items? (Y/N): ";
-		cin >> c;
-		c = toupper(c);
-		//system("CLS");
-	} while (c != 'N');
+	//if (c == 'N') {
+	//	system("CLS");
+	//	cout << "Total: RM" << total << endl;
+	//}
 
-	if (c == 'N') {
-		system("CLS");
-		cout << "Total: RM" << total << endl;
-	}
+	//calcSplitBill();
+
+	login();
 
 	return 0;
 }
 
-int addToTotal(int aSubTotal) {
+void login() {
+	string username, password;
+
+	cout << "Enter your username: ";
+	getline(cin, username);
+
+	cout << "Enter your password: ";
+	getline(cin, password);
+
+	if (validateLogin(username, password)) {
+		cout << "Login Successful" << endl;
+		system("pause");
+		system("CLS");
+		displayMenu();
+	}
+	else {
+		cout << "Wrong Login Information!" << endl;
+		system("pause");
+		system("CLS");
+		login();
+	}
+}
+
+double addToTotal(double aSubTotal) {
 	subTotal = aSubTotal;
 	cout << left << setw(13) << "\n\t\tSub-Total: " << "RM " << subTotal << endl;
 	return subTotal;
 }
 
-void grandTotal(int aTotal) {
+void grandTotal(double aTotal) {
 	total = aTotal;
 	cout << left << setw(13) << "\t\tTotal: " << "RM " << total << endl;
 }
 
-int retrievePrice() {
+void displayMenu() {
 	int i = 0;
-	int choice = 0;
-	int price = 0;
-	int quantity = 0;
 
 	vector<food> items;
-	items.push_back(food("Nasi Lemak", 2));
-	items.push_back(food("Nasi Goreng Ayam", 7));
-	items.push_back(food("Nasi Goreng Kampung", 5));
-	items.push_back(food("Roti Canai", 1));
-	items.push_back(food("Milo Ais", 2));
-	items.push_back(food("Teh O Ais", 2));
-	items.push_back(food("Kopi O Ais", 2));
-	items.push_back(food("Ais Kosong", 1));
+	items.push_back(food("Nasi Lemak", 2.5));
+	items.push_back(food("Nasi Goreng Ayam", 7.5));
+	items.push_back(food("Nasi Goreng Kampung", 5.5));
+	items.push_back(food("Roti Canai", 1.2));
+	items.push_back(food("Milo Ais", 2.1));
+	items.push_back(food("Teh O Ais", 1.8));
+	items.push_back(food("Kopi O Ais", 2.8));
+	items.push_back(food("Ais Kosong", 0.1));
 
 	cout << "Menu" << endl;
 	cout << "=============================" << endl;
-
 	for (vector<food>::iterator itr = items.begin(); itr != items.end(); ++itr) {
 		cout << i << ". " << left << setw(16) << itr->getName() << "\t" << "RM " << itr->getPrice() << endl;
 		i++;
 	}
-
 	cout << "=============================" << endl;
+
+	makeOrder(items);
+}
+
+void makeOrder(vector<food> items) {
+	int choice = 0;
+	int price = 0;
+	int quantity = 0;
 
 	cout << "Your choice: ";
 	cin >> choice;
 
 	price = items.at(choice).getPrice();
 
-	return price;
-
-	//TODO retrieve price and ask user for quantity, pass these two parameters to asm to calculate sub total of one item
-	//TODO make asm to return these values and temporarily store in variables in c++ to pass them into another asm function to calculate sub total
+	calcSubTotal(price);
 }
 
 int getQuantity() {
@@ -99,28 +130,6 @@ int getQuantity() {
 	cin >> quantity;
 
 	return quantity;
-}
-
-void login() {
-	string username, password;
-	cout << "Enter your username: ";
-	getline(cin, username);
-
-	cout << "Enter your password: ";
-	getline(cin, password);
-
-	if (validateLogin(username, password) == true) {
-		cout << "Login Successful!" << endl;
-		system("pause");
-		system("CLS");
-		retrievePrice();
-	}
-	else {
-		cout << "Wrong user or login password! Login unsuccessful!" << endl;
-		system("pause");
-		system("CLS");
-		login();
-	}
 }
 
 bool validateLogin(string username, string password) {
@@ -144,4 +153,29 @@ bool validateLogin(string username, string password) {
 	}
 	loginFile.close();
 	return false;
+}
+
+void calcSplitBill() {
+	char i; //input
+	int numOfPerson;
+
+	cout << "Do you want to split the bill? (Y/N): ";
+	cin >> i;
+	i = toupper(i);
+
+	if (i == 'Y') {
+		cout << "How many people? (Eg : 2): ";
+		cin >> numOfPerson;
+
+		int split = calcDivision(total, numOfPerson);
+		cout << "Each person pays: " << split;
+	}
+
+	else if (i == 'N') {
+		cout << "Total: RM" << total << endl;
+	}
+
+	else {
+		cout << "Please enter Y/N";
+	}
 }
