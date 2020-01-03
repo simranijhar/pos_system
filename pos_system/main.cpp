@@ -25,20 +25,34 @@ extern "C" {
 };
 
 int main() {
-	for (int i = 0; i < 3; i++) {
-		calcTotal();
+	char c;
+
+	do {
+		calcTotal(); //asm procedure
+
+		cout << "Do you want to add more items? (Y/N): ";
+		cin >> c;
+		c = toupper(c);
+		//system("CLS");
+	} while (c != 'N');
+
+	if (c == 'N') {
+		system("CLS");
+		cout << "Total: RM" << total << endl;
 	}
 
 	return 0;
 }
 
-int addToTotal(int sub) {
-	subTotal = sub;
+int addToTotal(int aSubTotal) {
+	subTotal = aSubTotal;
+	cout << left << setw(13) << "\n\t\tSub-Total: " << "RM " << subTotal << endl;
 	return subTotal;
 }
 
-void grandTotal(int total) {
-	cout << "TOTAL: " << total << endl;
+void grandTotal(int aTotal) {
+	total = aTotal;
+	cout << left << setw(13) << "\t\tTotal: " << "RM " << total << endl;
 }
 
 int retrievePrice() {
