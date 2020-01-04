@@ -11,40 +11,27 @@ using namespace std;
 //TODO retrieve price and ask user for quantity, pass these two parameters to asm to calculate sub total of one item
 //TODO make asm to return these values and temporarily store in variables in c++ to pass them into another asm function to calculate sub total
 
+//function declaration
 bool validateLogin(string username, string password);
-double total = 0;
-double subTotal = 0;
 void calcSplitBill();
 void login();
+void displayMenu();
+void makeOrder(vector<food> items);
+
+//global variables
+int total = 0;
+int subTotal = 0;
 
 extern "C" {
 	//EXTERNAL ASM PROCEDURES
-	void calcSubTotal(double price);
-	void calcTotal();
-	int calcDivision(double total, int numOfPerson);
+	int calcSubTotal(int price, int quantity);
+	int calcTotal(int subTotal, int total);
+	int calcDivision(int total, int numOfPerson);
+
 	//LOCAL C++ FNS
-	void displayMenu();
-	int getQuantity();
-	double addToTotal(double sub);
-	void grandTotal(int total);
 };
 
 int main() {
-	//char c;
-	//do {
-	//	calcTotal(); //asm procedure
-
-	//	cout << "Do you want to add more items? (Y/N): ";
-	//	cin >> c;
-	//	c = toupper(c);
-	//	//system("CLS");
-	//} while (c != 'N');
-
-	//if (c == 'N') {
-	//	system("CLS");
-	//	cout << "Total: RM" << total << endl;
-	//}
-
 	//calcSplitBill();
 
 	login();
@@ -75,29 +62,18 @@ void login() {
 	}
 }
 
-double addToTotal(double aSubTotal) {
-	subTotal = aSubTotal;
-	cout << left << setw(13) << "\n\t\tSub-Total: " << "RM " << subTotal << endl;
-	return subTotal;
-}
-
-void grandTotal(double aTotal) {
-	total = aTotal;
-	cout << left << setw(13) << "\t\tTotal: " << "RM " << total << endl;
-}
-
 void displayMenu() {
 	int i = 0;
 
 	vector<food> items;
-	items.push_back(food("Nasi Lemak", 2.5));
-	items.push_back(food("Nasi Goreng Ayam", 7.5));
-	items.push_back(food("Nasi Goreng Kampung", 5.5));
-	items.push_back(food("Roti Canai", 1.2));
-	items.push_back(food("Milo Ais", 2.1));
-	items.push_back(food("Teh O Ais", 1.8));
-	items.push_back(food("Kopi O Ais", 2.8));
-	items.push_back(food("Ais Kosong", 0.1));
+	items.push_back(food("Nasi Lemak", 2));
+	items.push_back(food("Nasi Goreng Ayam", 7));
+	items.push_back(food("Nasi Goreng Kampung", 5));
+	items.push_back(food("Roti Canai", 1));
+	items.push_back(food("Milo Ais", 2));
+	items.push_back(food("Teh O Ais", 1));
+	items.push_back(food("Kopi O Ais", 2));
+	items.push_back(food("Ais Kosong", 1));
 
 	cout << "Menu" << endl;
 	cout << "=============================" << endl;
@@ -114,22 +90,33 @@ void makeOrder(vector<food> items) {
 	int choice = 0;
 	int price = 0;
 	int quantity = 0;
+	char c;
 
-	cout << "Your choice: ";
-	cin >> choice;
+	do {
+		cout << "Your choice: ";
+		cin >> choice;
 
-	price = items.at(choice).getPrice();
+		price = items.at(choice).getPrice();
 
-	calcSubTotal(price);
-}
+		cout << "Quantity: ";
+		cin >> quantity;
 
-int getQuantity() {
-	int quantity;
+		subTotal = calcSubTotal(price, quantity);
+		cout << right << setw(16) << "\t\tSub Total: RM" << subTotal << endl;
+		total = calcTotal(subTotal, total);
+		cout << right << setw(16) << "\t\tTotal: RM" << total << endl;
 
-	cout << "Quantity: ";
-	cin >> quantity;
+		cout << "Do you want to add more items? (Y/N): ";
+		cin >> c;
+		c = toupper(c);
+	} while (c != 'N');
 
-	return quantity;
+	if (c == 'N') {
+		system("CLS");
+		cout <<"Total: RM" << total << endl;
+	}
+
+
 }
 
 bool validateLogin(string username, string password) {
