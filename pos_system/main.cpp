@@ -19,16 +19,18 @@ void displayMenu();
 void makeOrder(vector<food> items);
 
 //global variables
-int total = 0;
-int subTotal = 0;
+double total = 0;
+double subTotal = 0;
 
 extern "C" {
 	//EXTERNAL ASM PROCEDURES
-	int calcSubTotal(int price, int quantity);
-	int calcTotal(int subTotal, int total);
-	int calcDivision(int total, int numOfPerson);
+	void calcSubTotal(double price, double quantity);
+	void calcTotal(double subTotal, double total);
+	double splitBill(double total, int numOfPerson);
 
 	//LOCAL C++ FNS
+	void displaySubTotal(double subTotal);
+	void displayTotal(double total);
 };
 
 int main() {
@@ -66,30 +68,30 @@ void displayMenu() {
 	int i = 0;
 
 	vector<food> items;
-	items.push_back(food("Nasi Lemak", 2));
-	items.push_back(food("Nasi Goreng Ayam", 7));
-	items.push_back(food("Nasi Goreng Kampung", 5));
-	items.push_back(food("Roti Canai", 1));
-	items.push_back(food("Milo Ais", 2));
-	items.push_back(food("Teh O Ais", 1));
-	items.push_back(food("Kopi O Ais", 2));
-	items.push_back(food("Ais Kosong", 1));
+	items.push_back(food("Nasi Lemak", 2.5));
+	items.push_back(food("Nasi Goreng Ayam", 7.2));
+	items.push_back(food("Nasi Goreng Kampung", 5.1));
+	items.push_back(food("Roti Canai", 1.2));
+	items.push_back(food("Milo Ais", 2.2));
+	items.push_back(food("Teh O Ais", 1.7));
+	items.push_back(food("Kopi O Ais", 2.1));
+	items.push_back(food("Ais Kosong", 0.7));
 
 	cout << "Menu" << endl;
-	cout << "=============================" << endl;
+	cout << "==============================" << endl;
 	for (vector<food>::iterator itr = items.begin(); itr != items.end(); ++itr) {
 		cout << i << ". " << left << setw(16) << itr->getName() << "\t" << "RM " << itr->getPrice() << endl;
 		i++;
 	}
-	cout << "=============================" << endl;
+	cout << "==============================" << endl;
 
 	makeOrder(items);
 }
 
 void makeOrder(vector<food> items) {
 	int choice = 0;
-	int price = 0;
-	int quantity = 0;
+	double price = 0.0;
+	double quantity = 0.0;
 	char c;
 
 	do {
@@ -101,11 +103,9 @@ void makeOrder(vector<food> items) {
 		cout << "Quantity: ";
 		cin >> quantity;
 
-		subTotal = calcSubTotal(price, quantity);
-		cout << right << setw(16) << "\t\tSub Total: RM" << subTotal << endl;
-		total = calcTotal(subTotal, total);
-		cout << right << setw(16) << "\t\tTotal: RM" << total << endl;
-
+		calcSubTotal(price, quantity);
+		calcTotal(subTotal, total);
+		
 		cout << "Do you want to add more items? (Y/N): ";
 		cin >> c;
 		c = toupper(c);
@@ -117,6 +117,16 @@ void makeOrder(vector<food> items) {
 	}
 
 
+}
+
+void displaySubTotal(double aSubTotal) {
+	subTotal = aSubTotal;
+	cout << right << setw(16) << "\t\tSub Total: RM" << subTotal << endl;
+}
+
+void displayTotal(double aTotal) {
+	total = aTotal;
+	cout << right << setw(16) << "\t\tTotal: RM" << total << endl;
 }
 
 bool validateLogin(string username, string password) {
@@ -154,7 +164,7 @@ void calcSplitBill() {
 		cout << "How many people? (Eg : 2): ";
 		cin >> numOfPerson;
 
-		int split = calcDivision(total, numOfPerson);
+		double split = splitBill(total, numOfPerson);
 		cout << "Each person pays: " << split;
 	}
 

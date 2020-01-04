@@ -1,41 +1,44 @@
 include Irvine32.inc
 
 ;define functions here
-;retrievePrice PROTO C
-;getQuantity PROTO C
-;addToTotal PROTO C, value:SDWORD
-;grandTotal PROTO C, value:SDWORD
+displaySubTotal PROTO C, subTotal:real8
+displayTotal PROTO C,total:real8
 
 .data
 	;define variables here
-	;price DWORD ?
-	;quantity DWORD ?
-	;subTotal DWORD ?
-	;total DWORD ?
+	splitAmount real8 ?
+	aSubTotal real8 ?
+	aTotal real8 ?
 .code
 
-calcSubTotal PROC C, price:SDWORD, quantity:SDWORD
-	mov eax, price
-	mov ebx, quantity
-	mul ebx
+calcSubTotal PROC C, price:real8, quantity:real8
+	fld price
+	fld quantity
+	fmul
+	fstp aSubTotal
+	INVOKE displaySubTotal, aSubTotal
 	ret
 	Exit
 calcSubTotal ENDP
 
-calcTotal PROC C, subTotal:SDWORD, total:SDWORD
-	mov eax, subTotal
-	mov ebx, total
-	add eax, ebx
+calcTotal PROC C, subTotal:real8, total:real8
+	fld subTotal
+	fld total
+	fadd
+	fstp aTotal
+	INVOKE displayTotal, aTotal
+
 	ret
 	Exit
 calcTotal ENDP
 
-calcDivision PROC C, total:SDWORD, numOfPerson:SDWORD
-	mov eax, total
-	mov ebx, numOfPerson
-    xor edx, edx
-	div ebx
+splitBill PROC C, total:SDWORD, numOfPerson:SDWORD
+	fld total
+	fld numOfPerson
+	fdiv
+	fstp splitAmount
+
 	ret
 	Exit
-calcDivision ENDP
+splitBill ENDP
 END

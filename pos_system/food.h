@@ -15,23 +15,23 @@ public:
 	food();
 
 	//overload constructor
-	food(string, int);
+	food(string, double);
 
 	//destructor
 	~food();
 
 	//accessor functions
 	string getName() const; //returns name of food
-	int getPrice() const; //returns price of food
+	double getPrice() const; //returns price of food
 
 	//mutator functions
 	void setName(string); //set name of food
-	void setPrice(int); //set price of food
+	void setPrice(double); //set price of food
 
 private:
 	//member variables
 	string newName;
-	int newPrice;
+	double newPrice;
 };
 
 #endif // !FOOD_H

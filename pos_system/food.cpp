@@ -4,7 +4,7 @@ food::food() {
 	newPrice = 0;
 }
 
-food::food(string name, int price) {
+food::food(string name, double price) {
 	newName = name;
 	newPrice = price;
 }
@@ -16,7 +16,7 @@ string food::getName() const {
 	return newName;
 }
 
-int food::getPrice() const {
+double food::getPrice() const {
 	return newPrice;
 }
 
@@ -24,6 +24,6 @@ void food::setName(string name) {
 	newName = name;
 }
 
-void food::setPrice(int price) {
+void food::setPrice(double price) {
 	newPrice = price;
 }
