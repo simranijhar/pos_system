@@ -26,16 +26,15 @@ extern "C" {
 	//EXTERNAL ASM PROCEDURES
 	void calcSubTotal(double price, double quantity);
 	void calcTotal(double subTotal, double total);
-	double splitBill(double total, int numOfPerson);
+	void splitBill(double total, double numOfPerson);
 
 	//LOCAL C++ FNS
 	void displaySubTotal(double subTotal);
 	void displayTotal(double total);
+	void displaySplitAmount(double amount);
 };
 
 int main() {
-	//calcSplitBill();
-
 	login();
 
 	return 0;
@@ -105,7 +104,7 @@ void makeOrder(vector<food> items) {
 
 		calcSubTotal(price, quantity);
 		calcTotal(subTotal, total);
-		
+
 		cout << "Do you want to add more items? (Y/N): ";
 		cin >> c;
 		c = toupper(c);
@@ -113,20 +112,9 @@ void makeOrder(vector<food> items) {
 
 	if (c == 'N') {
 		system("CLS");
-		cout <<"Total: RM" << total << endl;
+		cout << "Total: RM" << total << endl;
+		calcSplitBill();
 	}
-
-
-}
-
-void displaySubTotal(double aSubTotal) {
-	subTotal = aSubTotal;
-	cout << right << setw(16) << "\t\tSub Total: RM" << subTotal << endl;
-}
-
-void displayTotal(double aTotal) {
-	total = aTotal;
-	cout << right << setw(16) << "\t\tTotal: RM" << total << endl;
 }
 
 bool validateLogin(string username, string password) {
@@ -153,26 +141,34 @@ bool validateLogin(string username, string password) {
 }
 
 void calcSplitBill() {
-	char i; //input
-	int numOfPerson;
+	char choice; //input
+	double numOfPerson = 0.0;
 
 	cout << "Do you want to split the bill? (Y/N): ";
-	cin >> i;
-	i = toupper(i);
+	cin >> choice;
+	choice = toupper(choice);
 
-	if (i == 'Y') {
+	if (choice == 'Y') {
 		cout << "How many people? (Eg : 2): ";
 		cin >> numOfPerson;
 
-		double split = splitBill(total, numOfPerson);
-		cout << "Each person pays: " << split;
+		splitBill(total, numOfPerson);
 	}
-
-	else if (i == 'N') {
-		cout << "Total: RM" << total << endl;
-	}
-
 	else {
-		cout << "Please enter Y/N";
+		displayMenu();
 	}
+}
+
+void displaySubTotal(double aSubTotal) {
+	subTotal = aSubTotal;
+	cout << right << setw(16) << "\t\tSub Total: RM" << subTotal << endl;
+}
+
+void displayTotal(double aTotal) {
+	total = aTotal;
+	cout << right << setw(16) << "\t\tTotal: RM" << total << endl;
+}
+
+void displaySplitAmount(double amount) {
+	cout << "Each person pays: RM" << amount << endl;
 }

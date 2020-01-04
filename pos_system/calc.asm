@@ -3,6 +3,7 @@ include Irvine32.inc
 ;define functions here
 displaySubTotal PROTO C, subTotal:real8
 displayTotal PROTO C,total:real8
+displaySplitAmount PROTO C, amount:real8
 
 .data
 	;define variables here
@@ -32,12 +33,12 @@ calcTotal PROC C, subTotal:real8, total:real8
 	Exit
 calcTotal ENDP
 
-splitBill PROC C, total:SDWORD, numOfPerson:SDWORD
+splitBill PROC C, total:real8, numOfPerson:real8
 	fld total
 	fld numOfPerson
 	fdiv
 	fstp splitAmount
-
+	INVOKE displaySplitAmount, splitAmount
 	ret
 	Exit
 splitBill ENDP
