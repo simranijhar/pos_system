@@ -5,11 +5,9 @@
 #include <iomanip>
 #include "food.h"
 #include <vector>
+#include <windows.h>
 
 using namespace std;
-
-//TODO retrieve price and ask user for quantity, pass these two parameters to asm to calculate sub total of one item
-//TODO make asm to return these values and temporarily store in variables in c++ to pass them into another asm function to calculate sub total
 
 //function declaration
 bool validateLogin(string username, string password);
@@ -17,39 +15,76 @@ void calcSplitBill();
 void login();
 void displayMenu();
 void makeOrder(vector<food> items);
+void centerstring(string s);
 
 //global variables
-double total = 0;
-double subTotal = 0;
+double total = 0.0;
+double subTotal = 0.0;
+double grandTotal = 0.0;
+double cst = 0.0;
+double sst = 0.0;
 
 extern "C" {
 	//EXTERNAL ASM PROCEDURES
-	void calcSubTotal(double price, double quantity);
-	void calcTotal(double subTotal, double total);
-	void splitBill(double total, double numOfPerson);
+	void calcSubTotal(double price, double quantity); //asm procedure to calculate sub total for each item
+	void calcTotal(double subTotal, double total); //asm procedure to calculate total
+	void splitBill(double total, double numOfPerson);//asm procedure to split bill between people
+	void calcCST(double total); //asm procedure to calculate customer service tax
+	void calcSST(double total); //asm procedure to calculate sales & service tax
+	void calcGrandTotal(double total, double cst, double sst);
 
 	//LOCAL C++ FNS
-	void displaySubTotal(double subTotal);
-	void displayTotal(double total);
-	void displaySplitAmount(double amount);
+	void displaySubTotal(double subTotal); //function to display sub total
+	void displayTotal(double total); //function to display total
+	void displaySplitAmount(double amount); //function to display split amount
+	void displayCST(double total);
+	void displaySST(double total);
+	void displayGrandTotal(double grandTotal);
 };
 
 int main() {
+	string s = "Welcome to Shaq Donald's!";
+	centerstring(s);
 	login();
-
 	return 0;
 }
+
+void centerstring(string s)
+{
+	int l = s.size();
+	int pos = (int)((80 - l) / 2);
+	for (int i = 0;i < pos;i++)
+		cout << " ";
+
+	cout << s << endl;
+}
+
 
 void login() {
 	string username, password;
 
-	cout << "Enter your username: ";
-	getline(cin, username);
+	cout << "=====================" << endl;
+	cout << right << setw(13) << "Login" << endl;
+	cout << "=====================" << endl;
 
+	cout << "\nEnter your username: ";
+	getline(cin, username);
+	
+	//input masked
+	HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);
+	DWORD mode = 0;
+	GetConsoleMode(hStdin, &mode);
+	SetConsoleMode(hStdin, mode & (~ENABLE_ECHO_INPUT));
+	
+	//password input
 	cout << "Enter your password: ";
 	getline(cin, password);
 
+	//reset console back to normal
+	SetConsoleMode(hStdin, mode);
+
 	if (validateLogin(username, password)) {
+		system("CLS");
 		cout << "Login Successful" << endl;
 		system("pause");
 		system("CLS");
@@ -61,30 +96,6 @@ void login() {
 		system("CLS");
 		login();
 	}
-}
-
-void displayMenu() {
-	int i = 0;
-
-	vector<food> items;
-	items.push_back(food("Nasi Lemak", 2.5));
-	items.push_back(food("Nasi Goreng Ayam", 7.2));
-	items.push_back(food("Nasi Goreng Kampung", 5.1));
-	items.push_back(food("Roti Canai", 1.2));
-	items.push_back(food("Milo Ais", 2.2));
-	items.push_back(food("Teh O Ais", 1.7));
-	items.push_back(food("Kopi O Ais", 2.1));
-	items.push_back(food("Ais Kosong", 0.7));
-
-	cout << "Menu" << endl;
-	cout << "==============================" << endl;
-	for (vector<food>::iterator itr = items.begin(); itr != items.end(); ++itr) {
-		cout << i << ". " << left << setw(16) << itr->getName() << "\t" << "RM " << itr->getPrice() << endl;
-		i++;
-	}
-	cout << "==============================" << endl;
-
-	makeOrder(items);
 }
 
 void makeOrder(vector<food> items) {
@@ -113,6 +124,9 @@ void makeOrder(vector<food> items) {
 	if (c == 'N') {
 		system("CLS");
 		cout << "Total: RM" << total << endl;
+		calcCST(total);
+		calcSST(total);
+		calcGrandTotal(total, cst, sst);
 		calcSplitBill();
 	}
 }
@@ -152,11 +166,35 @@ void calcSplitBill() {
 		cout << "How many people? (Eg : 2): ";
 		cin >> numOfPerson;
 
-		splitBill(total, numOfPerson);
+		splitBill(grandTotal, numOfPerson);
 	}
 	else {
 		displayMenu();
 	}
+}
+
+void displayMenu() {
+	int i = 0;
+
+	vector<food> items;
+	items.push_back(food("Nasi Lemak", 2.5));
+	items.push_back(food("Nasi Goreng Ayam", 7.2));
+	items.push_back(food("Nasi Goreng Kampung", 5.1));
+	items.push_back(food("Roti Canai", 1.2));
+	items.push_back(food("Milo Ais", 2.2));
+	items.push_back(food("Teh O Ais", 1.7));
+	items.push_back(food("Kopi O Ais", 2.1));
+	items.push_back(food("Ais Kosong", 0.7));
+
+	cout << "Menu" << endl;
+	cout << "==============================" << endl;
+	for (vector<food>::iterator itr = items.begin(); itr != items.end(); ++itr) {
+		cout << i << ". " << left << setw(16) << itr->getName() << "\t" << "RM " << itr->getPrice() << endl;
+		i++;
+	}
+	cout << "==============================" << endl;
+
+	makeOrder(items);
 }
 
 void displaySubTotal(double aSubTotal) {
@@ -169,6 +207,21 @@ void displayTotal(double aTotal) {
 	cout << right << setw(16) << "\t\tTotal: RM" << total << endl;
 }
 
+void displaySST(double _sst) {
+	sst = _sst;
+	cout << "+ SST: RM" << sst << endl;
+}
+
+void displayCST(double _cst) {
+	cst = _cst;
+	cout << "+ CST: RM" << cst << endl;
+}
+
 void displaySplitAmount(double amount) {
 	cout << "Each person pays: RM" << amount << endl;
+}
+
+void displayGrandTotal(double _grandTotal) {
+	grandTotal = _grandTotal;
+	cout << "Grand Total: RM" << grandTotal << endl;
 }
