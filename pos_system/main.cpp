@@ -15,8 +15,8 @@ void calcSplitBill();
 void login();
 void displayMenu();
 void makeOrder(vector<food> items);
-void centerstring(string s);
 void resetProg();
+void displayMain();
 
 //global variables
 double total = 0.0;
@@ -46,20 +46,14 @@ extern "C" {
 };
 
 int main() {
-	string s = ">>> Welcome to Shaq Donald's! <<<";
-	centerstring(s);
-	login();
+	
+	displayMain();
 	return 0;
 }
 
-void centerstring(string s)
-{
-	int l = s.size();
-	int pos = (int)((80 - l) / 2);
-	for (int i = 0;i < pos;i++)
-		cout << " ";
-
-	cout << s << endl;
+void displayMain() {
+	cout << ">>> Welcome to Shaq Donald's! <<<\n" << endl;
+	login();
 }
 
 void login() {
@@ -93,7 +87,7 @@ void login() {
 		displayMenu();
 	}
 	else {
-		cout << "Wrong Login Information!" << endl;
+		cout << "\nWrong Login Information!" << endl;
 		system("pause");
 		system("CLS");
 		login();
@@ -133,6 +127,13 @@ void makeOrder(vector<food> items) {
 	do {
 		cout << "Your choice: ";
 		cin >> choice;
+
+		if (choice == 99) {
+			system("CLS");
+			cout << "Program Exiting..." << endl;
+			system("pause");
+			exit(0);
+		}
 
 		price = items.at(choice).getPrice();
 
@@ -223,6 +224,7 @@ void displayMenu() {
 		cout << i << ". " << left << setw(16) << itr->getName() << "\t" << "RM " << itr->getPrice() << endl;
 		i++;
 	}
+	cout << "99. Exit" << endl;
 	cout << "==============================" << endl;
 
 	makeOrder(items);
