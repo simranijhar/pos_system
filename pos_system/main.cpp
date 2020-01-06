@@ -16,6 +16,7 @@ void login();
 void displayMenu();
 void makeOrder(vector<food> items);
 void centerstring(string s);
+void resetProg();
 
 //global variables
 double total = 0.0;
@@ -45,7 +46,7 @@ extern "C" {
 };
 
 int main() {
-	string s = "Welcome to Shaq Donald's!";
+	string s = ">>> Welcome to Shaq Donald's! <<<";
 	centerstring(s);
 	login();
 	return 0;
@@ -159,13 +160,37 @@ void makeOrder(vector<food> items) {
 
 		if (choice2 == 'Y') {
 			calcSplitBill();
+			resetProg();
 		}
 		else {
-			cout << "Amount paid by customer: RM";
-			cin >> amtPaid;
-			calcBalance(grandTotal, amtPaid);
+			do{
+				cout << "Amount paid by customer: RM";
+				cin >> amtPaid;
+				if (amtPaid < grandTotal) {
+					cout << "Not allowed! Customer should pay more or same amount!" << endl;
+				}
+				else {
+					calcBalance(grandTotal, amtPaid);
+				}				
+			} while (amtPaid < grandTotal);
+			cout << "\n";
+			resetProg();
 		}
 	}
+}
+
+void resetProg() {
+	cout << "\n>Moving onto next order..." << endl;
+	system("pause");
+	system("CLS");
+
+	total = 0.0;
+	subTotal = 0.0;
+	grandTotal = 0.0;
+	cst = 0.0;
+	sst = 0.0;
+
+	displayMenu();
 }
 
 void displayBalance(double change) {
@@ -174,10 +199,8 @@ void displayBalance(double change) {
 
 void calcSplitBill() {
 	double numOfPerson = 0.0;
-
 	cout << "How many people? (Eg: 2): ";
 	cin >> numOfPerson;
-
 	splitBill(grandTotal, numOfPerson);
 }
 
