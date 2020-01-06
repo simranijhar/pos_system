@@ -46,14 +46,30 @@ extern "C" {
 };
 
 int main() {
-	
 	displayMain();
 	return 0;
 }
 
 void displayMain() {
+	int choice = 0;
 	cout << ">>> Welcome to Shaq Donald's! <<<\n" << endl;
-	login();
+	cout << "1. Take an order" << endl;
+	cout << "99. Exit" << endl;
+	cout << "Choice: ";
+	cin >> choice;
+
+	switch (choice) {
+	case 1: {
+		system("CLS");
+		login();
+	}
+	case 2: {
+		system("CLS");
+		cout << "Program Exiting..." << endl;
+		system("pause");
+		exit(0);
+	}
+	}
 }
 
 void login() {
@@ -64,6 +80,7 @@ void login() {
 	cout << "=====================" << endl;
 
 	cout << "\nEnter your username: ";
+	cin.ignore();
 	getline(cin, username);
 
 	//input masked
@@ -128,13 +145,6 @@ void makeOrder(vector<food> items) {
 		cout << "Your choice: ";
 		cin >> choice;
 
-		if (choice == 99) {
-			system("CLS");
-			cout << "Program Exiting..." << endl;
-			system("pause");
-			exit(0);
-		}
-
 		price = items.at(choice).getPrice();
 
 		cout << "Quantity: ";
@@ -164,7 +174,7 @@ void makeOrder(vector<food> items) {
 			resetProg();
 		}
 		else {
-			do{
+			do {
 				cout << "Amount paid by customer: RM";
 				cin >> amtPaid;
 				if (amtPaid < grandTotal) {
@@ -172,7 +182,7 @@ void makeOrder(vector<food> items) {
 				}
 				else {
 					calcBalance(grandTotal, amtPaid);
-				}				
+				}
 			} while (amtPaid < grandTotal);
 			cout << "\n";
 			resetProg();
@@ -191,7 +201,7 @@ void resetProg() {
 	cst = 0.0;
 	sst = 0.0;
 
-	displayMenu();
+	displayMain();
 }
 
 void displayBalance(double change) {
