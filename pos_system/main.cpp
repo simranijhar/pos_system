@@ -32,6 +32,7 @@ extern "C" {
 	void calcCST(double total); //asm procedure to calculate customer service tax
 	void calcSST(double total); //asm procedure to calculate sales & service tax
 	void calcGrandTotal(double total, double cst, double sst);
+	void calcBalance(double grandTotal, double payment);
 
 	//LOCAL C++ FNS
 	void displaySubTotal(double subTotal); //function to display sub total
@@ -40,6 +41,7 @@ extern "C" {
 	void displayCST(double total);
 	void displaySST(double total);
 	void displayGrandTotal(double grandTotal);
+	void displayBalance(double change);
 };
 
 int main() {
@@ -59,7 +61,6 @@ void centerstring(string s)
 	cout << s << endl;
 }
 
-
 void login() {
 	string username, password;
 
@@ -69,13 +70,13 @@ void login() {
 
 	cout << "\nEnter your username: ";
 	getline(cin, username);
-	
+
 	//input masked
 	HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);
 	DWORD mode = 0;
 	GetConsoleMode(hStdin, &mode);
 	SetConsoleMode(hStdin, mode & (~ENABLE_ECHO_INPUT));
-	
+
 	//password input
 	cout << "Enter your password: ";
 	getline(cin, password);
@@ -95,39 +96,6 @@ void login() {
 		system("pause");
 		system("CLS");
 		login();
-	}
-}
-
-void makeOrder(vector<food> items) {
-	int choice = 0;
-	double price = 0.0;
-	double quantity = 0.0;
-	char c;
-
-	do {
-		cout << "Your choice: ";
-		cin >> choice;
-
-		price = items.at(choice).getPrice();
-
-		cout << "Quantity: ";
-		cin >> quantity;
-
-		calcSubTotal(price, quantity);
-		calcTotal(subTotal, total);
-
-		cout << "Do you want to add more items? (Y/N): ";
-		cin >> c;
-		c = toupper(c);
-	} while (c != 'N');
-
-	if (c == 'N') {
-		system("CLS");
-		cout << "Total: RM" << total << endl;
-		calcCST(total);
-		calcSST(total);
-		calcGrandTotal(total, cst, sst);
-		calcSplitBill();
 	}
 }
 
@@ -154,23 +122,63 @@ bool validateLogin(string username, string password) {
 	return false;
 }
 
+void makeOrder(vector<food> items) {
+	int choice = 0;
+	double price = 0.0;
+	double quantity = 0.0;
+	char choice1, choice2;
+	double amtPaid = 0.0;
+
+	do {
+		cout << "Your choice: ";
+		cin >> choice;
+
+		price = items.at(choice).getPrice();
+
+		cout << "Quantity: ";
+		cin >> quantity;
+
+		calcSubTotal(price, quantity);
+		calcTotal(subTotal, total);
+
+		cout << "Do you want to add more items? (Y/N): ";
+		cin >> choice1;
+		choice1 = toupper(choice1);
+	} while (choice1 != 'N');
+
+	if (choice1 == 'N') {
+		system("CLS");
+		cout << "Total: RM" << total << endl;
+		calcCST(total);
+		calcSST(total);
+		calcGrandTotal(total, cst, sst);
+
+		cout << "Do you want to split the bill? (Y/N): ";
+		cin >> choice2;
+		choice2 = toupper(choice2);
+
+		if (choice2 == 'Y') {
+			calcSplitBill();
+		}
+		else {
+			cout << "Amount paid by customer: RM";
+			cin >> amtPaid;
+			calcBalance(grandTotal, amtPaid);
+		}
+	}
+}
+
+void displayBalance(double change) {
+	cout << "Customer's change: RM" << change;
+}
+
 void calcSplitBill() {
-	char choice; //input
 	double numOfPerson = 0.0;
 
-	cout << "Do you want to split the bill? (Y/N): ";
-	cin >> choice;
-	choice = toupper(choice);
+	cout << "How many people? (Eg: 2): ";
+	cin >> numOfPerson;
 
-	if (choice == 'Y') {
-		cout << "How many people? (Eg : 2): ";
-		cin >> numOfPerson;
-
-		splitBill(grandTotal, numOfPerson);
-	}
-	else {
-		displayMenu();
-	}
+	splitBill(grandTotal, numOfPerson);
 }
 
 void displayMenu() {

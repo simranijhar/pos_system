@@ -7,6 +7,7 @@ displaySplitAmount PROTO C, amount:real8
 displaySST PROTO C, total:real8
 displayCST PROTO C, total:real8
 displayGrandTotal PROTO C, grandTotal:real8
+displayBalance PROTO C, change:real8
 
 .data
 	;define variables here
@@ -18,6 +19,7 @@ displayGrandTotal PROTO C, grandTotal:real8
 	cst real8 ?
 	sst real8 ?
 	grandTotal real8 ?
+	change real8 ?
 .code
 
 calcSubTotal PROC C, price:real8, quantity:real8
@@ -82,5 +84,14 @@ calcGrandTotal PROC C, total:real8, value1:real8, value2:real8
 	ret
 	Exit
 calcGrandTotal ENDP
-	
+
+calcBalance PROC C, value3:real8, payment:real8
+	fld payment
+	fld value3
+	fsub
+	fstp change
+	INVOKE displayBalance, change
+	ret
+	Exit
+calcBalance ENDP
 END
