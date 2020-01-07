@@ -6,6 +6,7 @@
 #include "food.h"
 #include <vector>
 #include <windows.h>
+#include <cctype>
 
 using namespace std;
 
@@ -156,7 +157,7 @@ void makeOrder(vector<food> items) {
 		cout << "Do you want to add more items? (Y/N): ";
 		cin >> choice1;
 		choice1 = toupper(choice1);
-	} while (choice1 != 'N');
+	} while (choice1 != 'N' && choice1 == 'Y');
 
 	if (choice1 == 'N') {
 		system("CLS");
